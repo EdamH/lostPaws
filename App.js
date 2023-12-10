@@ -1,20 +1,23 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import React from "react";
+import useCachedResources from "./hooks/useCachedResources";
+import { StyleSheet, View, Text, Image, TouchableWithoutFeedback} from 'react-native';
+import HomeScreen from "./screens/homeScreen";
+import AuthStack from "./routes/authStack";
+import FeedCard from "./components/feedCard";
+import HomeStack from "./routes/homeStack";
+import Profile from "./screens/profile";
+import ProfileStack from "./routes/profileStack";
+import MainTabs from "./routes/mainTabs";
 
 export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+  const isLoadingComplete = useCachedResources();
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+  if (!isLoadingComplete) {
+        return null;
+  }
+
+  return (
+    <AuthStack />
+  );
+  
+}
