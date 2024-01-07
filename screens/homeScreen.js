@@ -4,33 +4,12 @@ import { globalStyles } from "../styles/global";
 
 
 export default function HomeScreen({ navigation }) { 
-
-    const feed= [
-        {
-            image: "../assets/lost.jpg",
-            name: "Milo",
-            location: "El Manzah, Tunis",
-            breed: "Australian Shepherd"
-        },
-        {
-            image: "../assets/found.jpg",
-            name: "Milo",
-            location: "El Manzah, Tunis",
-            breed: "Australian Shepherd"
-        },
-        {
-            image: "../assets/adoption.jpg",
-            name: "Milo",
-            location: "El Manzah, Tunis",
-            breed: "Australian Shepherd"
-        },
-    ]
-
+    
     return (
         <View style={{...globalStyles.container, ...styles.container}}>
             
             <ImageBackground source={require('../assets/lost.jpg')} style={styles.feedButton} imageStyle={{ borderTopRightRadius: 10, borderTopLeftRadius: 10 }}>
-                <TouchableWithoutFeedback onPress={() => { navigation.navigate("feed", feed) }}>
+                <TouchableWithoutFeedback onPress={() => { navigation.navigate("feed", "Lost") }}>
                     <View style={{ ...styles.buttonDetails, backgroundColor: 'rgba(129, 228, 183, 0.6)', borderTopRightRadius: 10, borderTopLeftRadius: 10 }}>
                         <Text style={styles.buttonText}>Lost</Text>
                         <View style={styles.friendBox}>
@@ -43,7 +22,7 @@ export default function HomeScreen({ navigation }) {
             </ImageBackground>
             
             <ImageBackground source={require('../assets/found.jpg')} style={styles.feedButton}>
-                <TouchableWithoutFeedback onPress={() => { navigation.navigate("feed", feed) }}>   
+                <TouchableWithoutFeedback onPress={() => { navigation.navigate("feed", "Found") }}>   
                     <View style={{...styles.buttonDetails, backgroundColor: 'rgba(203, 89, 138, 0.8)'}}>
                         <Text style={styles.buttonText}>Found</Text>
                         <View style={styles.friendBox}>
@@ -56,7 +35,7 @@ export default function HomeScreen({ navigation }) {
             </ImageBackground>
             
             <ImageBackground source={require('../assets/adoption.jpg')} style={styles.feedButton} imageStyle={{ borderBottomRightRadius: 10, borderBottomLeftRadius: 10 }}>
-                <TouchableWithoutFeedback onPress={() => { navigation.navigate("feed", feed) }}>
+                <TouchableWithoutFeedback onPress={() => { navigation.navigate("feed", "Adoption") }}>
                     <View style={{ ...styles.buttonDetails, backgroundColor: 'rgba(167, 93, 86, 0.5)', borderBottomRightRadius: 10, borderBottomLeftRadius: 10}}>
                         <Text style={styles.buttonText}>Adoption</Text>
                         <View style={styles.friendBox}>

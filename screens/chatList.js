@@ -1,30 +1,23 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { StyleSheet, View, Text, FlatList, ImageBackground, TouchableWithoutFeedback} from 'react-native';
 import { globalStyles } from "../styles/global";
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomInput from "../components/customInput";
+import { getComms, url } from '../endpoints';
+import { Image } from 'expo-image';
 
 
-export default function ChatList({ navigation}) { 
-    const chats= [
-        {
-            image: require("../assets/lost.jpg"),
-            name: "Amira Balti",
-            message: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sunt tenetur recusandae eum quisquam dignissimos nisi rerum enim possimus quas,",
-        },
-        {
-            image: require("../assets/found.jpg"),
-            name: "Amira Balti",
-            message: "Just now",
-        },
-        {
-            image: require("../assets/adoption.jpg"),
-            name: "Amira Balti",
-            message: "Lorem ipsum dolor, sit amet consectetur adipisicing elit. Sunt tenetur recusandae eum quisquam dignissimos nisi rerum enim possimus quas,",
-        },
-    ]
-
+export default function ChatList({ navigation }) { 
+    const [chats, setChats] = useState(chats);
+    useEffect(() => { 
+        const fetchData = async () => {
+            const result = await getComms()
+            setChats(result.data);
+        };
+        fetchData();
+    }, []);
+    const blurhash = '|rF?hV%2WCj[ayj[a|j[az_NaeWBj@ayfRayfQfQM{M|azj[azf6fQfQfQIpWXofj[ayj[j[fQayWCoeoeaya}j[ayfQa{oLj?j[WVj[ayayj[fQoff7azayj[ayj[j[ayofayayayj[fQj[ayayj[ayfjj[j[ayjuayj[';
     const [searchKeywords, setSearchKeywords] = useState("");
     return(
         <View style={{ ...globalStyles.container, ...styles.container }}>
@@ -42,13 +35,23 @@ export default function ChatList({ navigation}) {
                 data={chats}
                 contentContainerStyle={{ flexGrow: 1, paddingBottom: 20 }}
                 renderItem={({item}) => (
-                    <TouchableWithoutFeedback onPress={() => navigation.navigate("Chat")}>
+                    <TouchableWithoutFeedback onPress={() => navigation.navigate("Chat", item)}>
                         <View style={styles.notificationCard}>
-                            <ImageBackground source={item.image} style={styles.petImage} imageStyle={{borderRadius: 100, borderWidth: 2,borderColor: "black"}}>
-                            </ImageBackground>
+                            <Image
+                                // source={item.userImage}
+                                // style={styles.petImage}
+                                // imageStyle={{ borderRadius: 100, borderWidth: 2, borderColor: "black" }}
+                                style={styles.petImage}
+                                // source={item.userImage}
+                                source= {url + "/uploads/" + item.userImage}
+                                placeholder={blurhash}
+                                contentFit="cover"
+                                transition={1000}
+                            >
+                            </Image>
                             <View style={styles.notificationCardDetails}>
-                                    <Text style={styles.mainText}>{item.name}</Text>
-                                    <Text style={styles.secondaryText}>{item.message}</Text>
+                                    <Text style={styles.mainText}>{item.username}</Text>
+                                    <Text style={styles.secondaryText}>{item.lastMessage}</Text>
                             </View>
                             
                         </View>
@@ -70,6 +73,8 @@ const styles = StyleSheet.create({
         borderRadius: 100,
         width: 50,
         height: 50,
+        borderWidth: 2,
+        borderColor: "black"
     },
     notificationCard: {
         backgroundColor: "whitesmoke",

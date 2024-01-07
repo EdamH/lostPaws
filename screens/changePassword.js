@@ -1,15 +1,24 @@
 import React, {useState} from "react";
-import { StyleSheet, View, Text} from 'react-native';
+import { StyleSheet, View, Text, TouchableWithoutFeedback} from 'react-native';
 import { globalStyles } from "../styles/global";
 import CustomButton from "../components/customButton";
 import CustomInput from "../components/customInput";
 import { Formik } from 'formik'
+import { updateProfile } from "../endpoints";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+
 
 
 
 
 export default function ChangePassword() {
-    
+
+    const [passwordInformation, setPasswordInformation] = useState({});
+    const updateUser = async () => {
+        console.log(passwordInformation)
+        const updateResult = await updateProfile({ passwordInformation: passwordInformation });
+        AsyncStorage.setItem('accessToken', updateResult.data.accessToken);
+     }
     return (
         <View style={{...globalStyles.container, ...styles.container}}>
             <View style={styles.privateInformation}>
@@ -17,9 +26,7 @@ export default function ChangePassword() {
                    <Formik
                     initialValues={{currentPassword: "", newPassword: ""}}
                     onSubmit={(values, action) => {
-                        action.resetForm();
-                        console.log("user added")
-                        console.log(values)
+                        setPasswordInformation(values)
                     }}
                     >
                         {(props) => (
@@ -31,7 +38,8 @@ export default function ChangePassword() {
                                 handleChange={props.handleChange('currentPassword')}
                                 value={props.values.currentPassword}
                                 handleBlur={props.handleBlur('currentPassword')}
-                                password= {true}
+                                password={true}
+                                width="95%"
                                 />
                             <Text style={{...globalStyles.secondaryText, marginLeft:"5%", marginTop: 5, fontSize: 15}}>New Password</Text>
                             <CustomInput
@@ -40,8 +48,12 @@ export default function ChangePassword() {
                                 handleChange={props.handleChange('newPassword')}
                                 value={props.values.newPassword}
                                 handleBlur={props.handleBlur('newPassword')}
-                                password= {true}
-                                />
+                                password={true}
+                                width= "95%"
+                            />
+                            <TouchableWithoutFeedback onPress={props.handleSubmit}>
+                                        <Text style={{ ...styles.choice, alignSelf: "flex-end" }}>save</Text>
+                            </TouchableWithoutFeedback>
                         </View>
                             
                         )}
@@ -57,6 +69,11 @@ export default function ChangePassword() {
                     end: [1, 0],
                     location: [0, 0.3, 0.5, 0.6, 0.8]
                 }}
+                handleClick={() => {
+                    updateUser();
+                    // navigation.navigate("Profile")
+                }
+                }
             >
                 Save    
             </CustomButton>
@@ -74,5 +91,16 @@ const styles = StyleSheet.create({
         backgroundColor: "whitesmoke",
         marginVertical: 10,
         padding: 10
+    },
+    choice: {
+        borderWidth: 1,
+        fontSize: 18,
+        padding: 5,
+        width: 110, 
+        textAlign: "center",
+        marginTop: 20,
+        borderRadius: 5,
+        borderColor: "#B2B2B2",
+        color: "#CF5C36"
     }
 })

@@ -6,6 +6,7 @@ import ChatStack from './chatStack';
 import Notifications from '../screens/notifications';
 import ProfileStack from './profileStack';
 import AddPost from '../screens/addPost';
+import Header from '../components/header';
 
 
 
@@ -14,11 +15,12 @@ const Tab = createBottomTabNavigator();
 
 
 
-export default function MainTabs() {
+export default function MainTabs({ route }) {
     return (
             <Tab.Navigator
                 initialRouteName="homeStack"
                 screenOptions={{ headerShown: false }}
+                data= {route.params}
             >
                 <Tab.Screen
                     name="homeStack"
@@ -54,13 +56,14 @@ export default function MainTabs() {
                             borderTopWidth: 0,
                             elevation: 0,
                             shadowOpacity: 0,
-                        }
+                        },
+
                     }}
                 />
                 <Tab.Screen
                     name="add"
                     component={AddPost}
-                    options={{
+                    options={(route, navigation) => ({
                         headerShown: true,
                         tabBarLabel: 'Add a pet',
                         tabBarIcon: ({ color, size }) => (
@@ -73,13 +76,14 @@ export default function MainTabs() {
                             borderTopWidth: 0,
                             elevation: 0,
                             shadowOpacity: 0,
-                        }
-                    }}
+                        },
+                        header: () => <Header title='Add a pet' main={true} icon='add-circle' />
+                    })}
                 />
                 <Tab.Screen
                     name="notifications"
                     component={Notifications}
-                    options={{
+                    options={(route, navigation) => ({
                         headerShown: true,
                         tabBarLabel: 'Notifications',
                         tabBarIcon: ({ color, size }) => (
@@ -92,8 +96,11 @@ export default function MainTabs() {
                             borderTopWidth: 0,
                             elevation: 0,
                             shadowOpacity: 0,
-                        }
-                    }}
+                        },
+                        header: () => <Header title='Notifications' main={true} icon='notifications' />
+                    })}
+                    
+                
                 />
                 <Tab.Screen
                     name="profileStack"

@@ -5,6 +5,7 @@ import CustomInput from "../components/customInput";
 import CustomButton from "../components/customButton";
 // FORM HANDLING
 import { Formik } from 'formik'
+import { register } from '../endpoints'
 // FORM VALIDATION
 import * as yup from 'yup'
 
@@ -29,11 +30,11 @@ export default function SignupPage({ navigation }) {
             />
             <View style={styles.loginBox}>
                 <Formik
-                initialValues={{ name: '', mail: '', password: '', confirmedPassword: '' }}
-                onSubmit={(values, action) => {
+                initialValues={{ name: 'Youssef Masmoudi', mail: 'youssef.masmoudi@fss.tn', password: 'Cin#11149398', confirmedPassword: 'Cin#11149398' }}
+                onSubmit={async (values, action) => {
                     action.resetForm();
                     console.log("user added")
-                    console.log(values)
+                    await register({username: values.name, email: values.mail, password: values.password})
                 }}
                 validationSchema={reviewSchema}
                 >

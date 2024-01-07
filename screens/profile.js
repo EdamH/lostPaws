@@ -1,11 +1,28 @@
-import React, {useState} from "react";
+import React, {useState, useEffect} from "react";
 import { StyleSheet, View, Text, ImageBackground, TouchableWithoutFeedback, FlatList} from 'react-native';
 import { globalStyles } from "../styles/global";
 import CustomButton from "../components/customButton";
 import { MaterialIcons } from '@expo/vector-icons';
 import { LinearGradient } from 'expo-linear-gradient';
+import { currentUser, url } from "../endpoints";
+import { Image } from "expo-image";
 
 export default function Profile({ navigation }) {
+
+    const [thisUser, setThisUser] = useState({});
+    useEffect(() => {
+        const fetchData = async () => {
+            const result = await currentUser();
+            setThisUser(result.data);
+        };
+        // CHECKS IF SCREEN IS FOCUSED ON
+        const update = navigation.addListener('focus', () => {
+            fetchData();
+        });
+
+        return update;
+    }, [navigation]);
+
     return (
         <View style={globalStyles.container}>
             <LinearGradient
@@ -20,7 +37,7 @@ export default function Profile({ navigation }) {
                         <MaterialIcons name="logout" size={24} color="black" />
                     </TouchableWithoutFeedback>
                 </View>
-                <ImageBackground source={require('../assets/found.jpg')} imageStyle={styles.imageStyle} style={styles.profilePic} />
+                <Image source={url + "/uploads/" + thisUser.userImage} style={{...styles.profilePic, ...styles.imageStyle}} />
             </LinearGradient>
             <View style={styles.bottomContainer}></View>
             <View style={styles.optionsContainer}>
@@ -35,12 +52,12 @@ export default function Profile({ navigation }) {
                     ]}
                     ListHeaderComponent={() =>
                         <View style={{ height: 75, justifyContent: "center", alignItems: "center", borderBottomWidth: 1, borderBottomColor: "#B2B2B2", paddingVertical: 10 }}>
-                            <Text style={{ fontSize: 20, fontWeight: "bold", marginLeft: 10 }}>User Name</Text>
-                            <Text style={{ fontSize: 20, marginLeft: 10, color: '#B2B2B2' }}>Sfax Tunis</Text>
+                            <Text style={{ fontSize: 20, fontWeight: "bold", marginLeft: 10 }}>{ thisUser.username }</Text>
+                            <Text style={{ fontSize: 20, marginLeft: 10, color: '#B2B2B2' }}>{ thisUser.city }</Text>
                         </View>
                     }
                     renderItem={({item}) => 
-                        <TouchableWithoutFeedback onPress={() => navigation.navigate(item.key)}>
+                        <TouchableWithoutFeedback onPress={() => navigation.navigate(item.key, thisUser)}>
                             <View style={{height: 50, justifyContent: "center", borderBottomWidth: 1, borderBottomColor: "#B2B2B2"}}>
                                 <Text style={{ fontSize: 20, marginLeft: 10 }}>{item.key}</Text>
                                 <MaterialIcons name="arrow-forward-ios" size={24} color="#B2B2B2" style={{position: "absolute", right: 5}} />

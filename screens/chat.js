@@ -1,59 +1,45 @@
-import React, {useState} from "react";
-import { StyleSheet, View, Text, FlatList, ImageBackground, TouchableWithoutFeedback} from 'react-native';
+import React, { useState, useEffect} from "react";
+import { StyleSheet, View, Text, FlatList, TouchableWithoutFeedback} from 'react-native';
 import { globalStyles } from "../styles/global";
 import { Ionicons } from '@expo/vector-icons';
 import { MaterialIcons } from '@expo/vector-icons';
 import CustomInput from "../components/customInput";
+import { getMessages, getCurrent, sendMessage, url } from "../endpoints";
+import { Image } from 'expo-image';
 
 
 
+export default function Chat({ route }) {
+    
+    const otherUser = route.params
+    console.log(otherUser)
+    const [chat, setChat] = useState([]);
+    const [currentUser, setCurrentUser] = useState("");
+    const [message, setMessage] = useState("");
 
-export default function Chat() {
-
-    const chat = [
-        {
-            image: require("../assets/lost.jpg"),
-            sender: "me",
-            message: "Hello from the other side",
-        },
-        {
-            image: require("../assets/found.jpg"),
-            sender: "other",
-            message: "Hey there, Amria! How are you doing?",
-        },
-        {
-            image: require("../assets/adoption.jpg"),
-            sender: "me",
-            message: "I'm doing great, thanks! How about you?",
-        },
-        {
-            image: require("../assets/lost.jpg"),
-            sender: "other",
-            message: "I'm doing great too, thanks!",
-        },
-        {
-            image: require("../assets/found.jpg"),
-            sender: "me",
-            message: "That's great to hear!",
-        },
-        {
-            image: require("../assets/adoption.jpg"),
-            sender: "other",
-            message: "I'm doing great too, thanks!",
-        },
-    ]
-
-    const [message, setMessage] = useState("")
+    useEffect(() => { 
+        const fetchData = async () => {
+            const currentUser = await getCurrent().then((response) => response.data._id);
+            setCurrentUser(currentUser);
+            // console.log(otherUser._id)
+            const result = await getMessages(otherUser._id)
+            setChat(result.data);
+            // console.log(result.data[0].sender._id === currentUser)
+            // console.log(currentUser);
+            // console.log(result.data[2].sender._id);
+        };
+        fetchData();
+    }, []);
     return (
         <View style={{ ...globalStyles.container, ...styles.container }}>
             <FlatList
                 data={chat}
-                contentContainerStyle={{ flexGrow: 1, paddingBottom: 20, gap: 15, justifyContent: "flex-end"}}
+                contentContainerStyle={{ flexGrow: 1, paddingBottom: 20, gap: 15, justifyContent: "flex-start", flexDirection: "column-reverse"}}
                 renderItem={({ item }) => (
-                    <View style={item.sender === "me" ? styles.myMessageContainer : styles.otherMessageContainer}>
-                        <ImageBackground source={item.image} imageStyle={{borderRadius: 100, borderWidth: 1, borderColor: "black"}} style={{width: 35, height: 35, alignSelf: "flex-end", marginVertical: 5,}} />
-                        <View style={item.sender === "me" ? styles.myMessage : styles.otherMessage}>
-                            <Text style={item.sender === "me" ? styles.myMessageLabel : styles.otherMessageLabel}>{item.sender === "me" ? "You" : "Amira Balti"}</Text>
+                    <View style={item.sender._id === currentUser ? styles.myMessageContainer : styles.otherMessageContainer}>
+                        <Image source={url + "/uploads/" + item.sender.userImage} style={{width: 35, height: 35, alignSelf: "flex-end", marginVertical: 5,borderRadius: 100, borderWidth: 1, borderColor: "black"}} />
+                        <View style={item.sender._id === currentUser ? styles.myMessage : styles.otherMessage}>
+                            <Text style={item.sender._id === currentUser ? styles.myMessageLabel : styles.otherMessageLabel}>{item.sender._id === currentUser ? "You" : item.sender.username}</Text>
                             <Text style={styles.messageText}>{item.message}</Text>
                         </View>
                     </View>
@@ -64,7 +50,11 @@ export default function Chat() {
                     <Ionicons name="camera" size={28} color="#CF5C36" />
                 </TouchableWithoutFeedback>
                 <CustomInput placeholder="Type a message..." value={message} handleChange={(value) => setMessage(value)} />
-                <TouchableWithoutFeedback>
+                <TouchableWithoutFeedback onPress={async () => {
+                    const result = await sendMessage(message, otherUser._id);
+                    setChat(result.data);
+                    setMessage("");
+                }}>
                     {message !== "" ?
                         <Ionicons name="send" size={24} color="#CF5C36" /> :
                         <Ionicons name="add-circle" size={28} color="#CF5C36" />   

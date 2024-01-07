@@ -1,9 +1,8 @@
-import React, {useState} from "react";
-import { StyleSheet, View, Text, ScrollView, TouchableWithoutFeedback, Platform } from 'react-native';
-import { Image } from 'expo-image';
+import React, { useState } from 'react';
+import { View, Modal, StyleSheet, TouchableWithoutFeedback, Keyboard, Text, ScrollView } from 'react-native';
 import { globalStyles } from "../styles/global";
-import CustomButton from "../components/customButton";
-import CustomInput from "../components/customInput";
+import CustomButton from './customButton';
+import CustomInput from './customInput';
 import { Formik } from 'formik'
 import Slider from '@react-native-community/slider';
 import { MaterialIcons } from "@expo/vector-icons";
@@ -13,24 +12,26 @@ import * as FileSystem from 'expo-file-system';
 import { FileSystemUploadType } from 'expo-file-system';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 // import Base64Binary from 'base64-binary'
-import { url, addPet } from "../endpoints";
+import { url, updatePet } from "../endpoints";
+import { Image } from 'expo-image';
 
 
-export default function AddPost({ navigation }) {
-    
+export default function CustomModal({ item }) {
+    // console.log(item)
+    const [isOpen, setIsOpen] = useState(false);
     const [sliderValue, setSliderValue] = useState(0);
     const toggleSlider = (value) => {
         setSliderValue(value);
     }
-    const [postType, setPostType] = useState("Lost");
+    const [postType, setPostType] = useState(item.postType);
     const togglePostType = (value) => {
         setPostType(value);
     }
-    const [petSpecies, setPetSpecies] = useState("Cat");
+    const [petSpecies, setPetSpecies] = useState(item.petSpecies);
     const togglePetSpecies = (value) => {
         setPetSpecies(value);
     }
-    const [petGender, setPetGender] = useState("Male");
+    const [petGender, setPetGender] = useState(item.petGender);
     const togglePetGender = (value) => {
         setPetGender(value);
     }
@@ -39,7 +40,7 @@ export default function AddPost({ navigation }) {
         setFormData(value);
     }
 
-    const [image, setImage] = useState(null);
+    const [image, setImage] = useState(item.petImage);
 
   const pickImage = async () => {
     // No permissions request is necessary for launching the image library
@@ -68,8 +69,9 @@ export default function AddPost({ navigation }) {
     }
     };
 
-    const addPost = async () => {
+    const updatePost = async () => {
         const data = image ? {
+            id: item._id,
             petImage: image,
             postType,
             petSpecies,
@@ -80,6 +82,7 @@ export default function AddPost({ navigation }) {
             petGender,
             petSize: sliderValue
         } : {
+            id: item._id,
             postType,
             petSpecies,
             petName: formData.name,
@@ -90,23 +93,27 @@ export default function AddPost({ navigation }) {
             petSize: sliderValue
         }
             
-        const result = await addPet(data).then((res) => {navigation.navigate("homeStack")});
+        const result = await updatePet(data).then((res) => { setIsOpen(false) });
         console.log(result);
     }
-
-    
-
     return (
-        <ScrollView style={{ ...globalStyles.container, ...styles.container}}>
+        <View>
+            <TouchableWithoutFeedback onPress={() => setIsOpen(true)}>
+                <MaterialIcons style={styles.cardIcon} name="edit" size={24} color='#7f7e7e' />
+            </TouchableWithoutFeedback>
+          {/* <MaterialIcons style={styles.modalToggle} name="add" size={24} onPress={() => setIsOpen(true)} /> */}
+          <Modal visible={isOpen} animationType='slide'>
+            <TouchableWithoutFeedback onPress={Keyboard.dismiss}>         
+            <View style={styles.modalContent}>
+              <MaterialIcons size={24} style={{...styles.modalToggle, ...styles.modalClose}}  name='close' onPress={() => setIsOpen(false)} />
+                <ScrollView style={{ ...styles.container}}>
             <View style={styles.topContainer}>
                 <TouchableWithoutFeedback onPress={pickImage}>
                     <View style={styles.addPhoto} >
-                        {!image && <MaterialIcons name="add-a-photo" size={40} color="black" />}
                         {image && <Image source={url + "/uploads/pets/" + image} style={{...styles.profilePic, ...styles.imageStyle}} />}
-
                     </View>
                 </TouchableWithoutFeedback>
-                <Text style={{textAlign: "center", marginTop: 5, color: "#CF5C36", ...globalStyles.paragraph}}>Add Photos</Text>
+                {/* <Text style={{textAlign: "center", marginTop: 10, color: "#CF5C36", ...globalStyles.paragraph}}>Add Photos</Text> */}
             </View>
             <View style={styles.bottomContainer}>
                 <View style={styles.multipleContainer}>
@@ -141,7 +148,7 @@ export default function AddPost({ navigation }) {
                 <View style={styles.privateInformation}>
                     <Text style={globalStyles.titleText}>Information</Text>
                    <Formik
-                    initialValues={{name: "", city: "", breed: "", age: ""}}
+                    initialValues={{name: item.petName, city: item.city, breed: item.petBreed, age: item.petAge}}
                     onSubmit={(values, action) => {
                         // action.resetForm();
                         // console.log("pet added")
@@ -224,6 +231,8 @@ export default function AddPost({ navigation }) {
                             maximumTrackTintColor="#7C7C7C"
                             thumbTintColor="#CF5C36"
                             onSlidingComplete={(value) => toggleSlider(value)}
+                            value={parseInt(item.petSize)}
+                                            
                         />
                         <MaterialIcons name="pets" size={24} color="#cf5c36" />
                     </View>
@@ -239,19 +248,42 @@ export default function AddPost({ navigation }) {
                                     end: [1, 0],
                                     location: [0, 0.3, 0.5, 0.6, 0.8]
                                 }}
-                                handleClick={addPost}
+                                handleClick={updatePost}
                 >
                 Save    
                 </CustomButton>
             </View>
         </ScrollView>
-    )
+            </View>
+            </TouchableWithoutFeedback>
+          </Modal>
+        </View>
+    );
+
+
 }
 
-
 const styles = StyleSheet.create({
-    container: {
+    modalToggle: {
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 10,
+    borderWidth: 1,
+    borderColor: '#f2f2f2',
+    padding: 10,
+    borderRadius: 10,
+    alignSelf: 'center',
+  },
+  modalClose: {
+    marginTop: 20,
+    marginBottom: 0,
+  },
+  modalContent: {
+    flex: 1,
+    },
+  container: {
         paddingVertical: 10,
+        backgroundColor: '#EEE5E9',
     },
     topContainer: {
         backgroundColor: "whitesmoke",
@@ -335,5 +367,4 @@ const styles = StyleSheet.create({
         borderWidth: 2,
         borderColor: "black" 
     }
-
-})
+});

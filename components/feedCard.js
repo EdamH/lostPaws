@@ -1,22 +1,31 @@
 import React, {useState} from "react";
-import { StyleSheet, View, Text, Image, TouchableWithoutFeedback} from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { StyleSheet, View, Text, TouchableWithoutFeedback} from 'react-native';
+import { Ionicons, MaterialIcons } from '@expo/vector-icons';
+import { Image } from 'expo-image';
+import { url } from "../endpoints";
 
 
 
-export default function FeedCard({image=require('../assets/lost.jpg'), name="Milo", location="El Manzah, Tunis", breed="Australian Shepherd", navigation}) {
+
+export default function FeedCard({adoptPet= () => {console.log("adopt me!")}, sendMessage= () => {console.log("contact me!")}, adoption= false, image=require('../assets/lost.jpg'), name="Milo", location="El Manzah, Tunis", breed="Australian Shepherd", navigation}) {
     return (
         <View style={styles.card}>
-            <Image style={styles.image} source={image} resizeMode="cover" />
+            <Image style={styles.image} source={url + "/uploads/pets/" + image} contentFit="cover" />
             <View style={styles.cardDetails}>
                 <View style={styles.cardText}>
                     <Text style={styles.mainText}>{name}</Text>
                     <Text style={styles.secondaryText}>{location}</Text>
                     <Text style={styles.secondaryText}>{breed}</Text>
                 </View>
-                <View style={styles.cardBalls}>
-                    <View style={styles.ball}><Ionicons style={styles.cardIcon} name="share-social" size={24} color='#7f7e7e' /></View>
-                    <View style={styles.ball}><Ionicons style={styles.cardIcon} name="send" size={24} color='#7f7e7e' /></View>
+                <View style={ adoption ? styles.cardBalls : {...styles.cardBalls, justifyContent: "flex-end"}}>
+                    {adoption &&
+                        <TouchableWithoutFeedback onPress={adoptPet}>
+                            <View style={styles.ball}><MaterialIcons style={styles.cardIcon} name="pets" size={24} color='#7f7e7e' /></View>
+                        </TouchableWithoutFeedback>
+                    }
+                    <TouchableWithoutFeedback onPress={sendMessage}>
+                        <View style={styles.ball}><Ionicons style={styles.cardIcon} name="send" size={24} color='#7f7e7e' /></View>
+                    </TouchableWithoutFeedback>
                 </View>
             </View>
         </View>
@@ -47,7 +56,7 @@ const styles = StyleSheet.create({
     },
     cardDetails: {
         flex: 1,
-        padding: 10,
+        padding: 18,
         flexDirection: 'row',
     },
     cardText: {

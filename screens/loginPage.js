@@ -3,8 +3,10 @@ import { StyleSheet, View, Text, Image, TouchableWithoutFeedback, Modal} from 'r
 import { globalStyles } from "../styles/global";
 import CustomInput from "../components/customInput";
 import CustomButton from "../components/customButton";
+import AsyncStorage from '@react-native-async-storage/async-storage';
 // FORM HANDLING
 import { Formik } from 'formik'
+import { login } from '../endpoints'
 
 
 export default function LoginPage({ navigation }) {
@@ -17,12 +19,18 @@ export default function LoginPage({ navigation }) {
             />
             <View style={styles.loginBox}>
                 <Formik
-                initialValues={{ name: '', mail: '', password: '', confirmedPassword: '' }}
-                onSubmit={(values, action) => {
+                initialValues={{ email: 'edam.hamza@supcom.tn', password: '00000'}}
+                onSubmit={async (values, action) => {
                     action.resetForm();
-                    console.log("user added")
-                    console.log(values)
-                    navigation.navigate('mainTabs')
+                    await login(values)
+                    .then((response) => {
+                        // console.log(response.data);
+                        AsyncStorage.setItem('accessToken', response.data.accessToken);
+                        navigation.navigate('mainTabs');
+                    })
+                    .catch((error) => {
+                        console.log(error);
+                    });
                 }}
                 >
                     {(props) => (
@@ -30,9 +38,9 @@ export default function LoginPage({ navigation }) {
                         <CustomInput
                             icon= {['mail', 'black']}
                             placeholder="e-mail address"
-                            handleChange={props.handleChange('mail')}
-                            value={props.values.mail}
-                            handleBlur={props.handleBlur('mail')}
+                            handleChange={props.handleChange('email')}
+                            value={props.values.email}
+                            handleBlur={props.handleBlur('email')}
                             password={false}
                             width={'90%'}    
                         />
